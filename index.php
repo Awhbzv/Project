@@ -42,7 +42,7 @@ include __DIR__ . '/include/header.php';
        
                 <?php
              // getting data from articles
-                  $articles = mysqli_query($connection, "SELECT * FROM `articles`". "ORDER BY" . 'id' . 'DESC LIMIT'  );
+                  $articles = mysqli_query($connection, "SELECT * FROM articles". "ORDER BY" . 'id' . 'DESC LIMIT'  );
                   
              // cheking succesfully connection
                   if ($categories === false)
@@ -53,7 +53,7 @@ include __DIR__ . '/include/header.php';
                 ?>
                 <?php
              // getting data from articles
-                  $articles = mysqli_query($connection, "SELECT * FROM `articles`");
+                  $articles = mysqli_query($connection, "SELECT * FROM articles");
                    
              // checking successfully connection
                   if ($articles === false) {
@@ -62,55 +62,44 @@ include __DIR__ . '/include/header.php';
                    }
                 ?>
 
-                <?php 
-                  while ($art = mysqli_fetch_assoc($articles)) {
+               <?php 
+while ($art = mysqli_fetch_assoc($articles)) { 
+    $imagePath = isset($art['image']) && !empty($art['image']) 
+        ? '/test.ru/media/images/' . htmlspecialchars($art['image']) 
+        : '/test.ru/media/images/default.jpg';
+?>
+<article class="article">
+    <div class="article__image" style="background-image: url('<?php echo $imagePath; ?>');"></div>
+    <div class="article__info">
+        <a href="/article.php?id=<?php echo htmlspecialchars($art['id']); ?>">
+            <?php echo htmlspecialchars($art['title']); ?>
+        </a>
+        <div class="article__info__meta">
+            <small>
+                <?php
+                $category_query = "SELECT title FROM articles_categories WHERE id = " . (int)$art['categories_id'];
+                $category_result = mysqli_query($connection, $category_query);
+                $category = mysqli_fetch_assoc($category_result);
+                echo $category ? htmlspecialchars($category['title']) : "No Category";
                 ?>
-                    <article class="article">
-                    <divЮ class="article__image" style="background-image: url(/media/images/<?php echo htmlspecialchars($articles['image']); ?>');"></div>
-              <div class="article__info">
-            <a href="/article.php?id=<?php echo htmlspecialchars($art['id']); ?>"><?php echo htmlspecialchars($art['title']); ?></a>
-          <div class="article__info__meta">
-                <?php 
-                  $art_cat = false;
-                  foreach ($categories as $cat) {
-                  if ($cat['id'] == $art['categories_id']) 
-                  {
-                    $art_cat = $cat;
-                    break;
-                  }  
-                  }
-
-            // Check if category exists
-            if ($art_cat !== false) 
-            {
-                ?>
-                <small>Category: <a href="/categorie.php?id=<?php echo htmlspecialchars($art_cat['id']); ?>"><?php echo htmlspecialchars($art_cat['title']); ?></a></small>
-            <?php
-            } else {
-                // If no category found
-                echo "<small>Category not found</small>";
-            }
-            ?>
+            </small>
         </div>
-        <div class="article__info__preview"><?php echo mb_substr(htmlspecialchars($art['text']), 0, 50, 'utf-8'); ?></div>
+        <div class="article__info__preview">
+            <?php echo mb_substr(htmlspecialchars($art['text']), 0, 100, 'utf-8') . '...'; ?>
+        </div>
     </div>
 </article>
-<?php          
-}
-?> 
-
-
+<?php } ?>
 
 <?php /*                           Security newest Block                                          */?>
           <?php
 
-// Condition for selecting articles
 // For example, we take only articles from a category with id = 1 or with a specific tag
-$condition = "`categories_id` = 5"; // You can specify any SQL conditions here
+$condition = "categories_id = 5"; // You can specify any SQL conditions here
 
 
 // Get the latest articles that match a condition
-$newest_articles_query = "SELECT * FROM `articles` WHERE $condition ORDER BY `id` DESC LIMIT 5";
+$newest_articles_query = "SELECT * FROM articles WHERE $condition ORDER BY id DESC LIMIT 5";
 $newest_articles = mysqli_query($connection, $newest_articles_query);
 
 // Checking the success of the request
@@ -142,7 +131,7 @@ if ($newest_articles === false) {
                         <small>
                             <?php
                             // Получаем название категории
-                            $category_query = "SELECT `title` FROM `articles_categories` WHERE `id` = " . (int)$article['categories_id'];
+                            $category_query = "SELECT title FROM articles_categories WHERE id = " . (int)$article['categories_id'];
                             $category_result = mysqli_query($connection, $category_query);
                             $category = mysqli_fetch_assoc($category_result);
                             echo $category ? htmlspecialchars($category['title']) : "No Category";
@@ -157,8 +146,6 @@ if ($newest_articles === false) {
         <?php } ?>
     </div>
 </div>
-
-
                 </div>
               </div>
             </div>
@@ -178,7 +165,7 @@ if ($newest_articles === false) {
             <div class="articles articles__vertical">
                 <?php
                 // Запрос на выборку 5 самых читаемых статей, сортировка по количеству просмотров
-                $top_articles_query = "SELECT * FROM `articles` ORDER BY `views` DESC LIMIT 5";
+                $top_articles_query = "SELECT * FROM articles ORDER BY views DESC LIMIT 5";
                 $top_articles = mysqli_query($connection, $top_articles_query);
 
                 // Проверка успешности запроса
@@ -200,7 +187,7 @@ if ($newest_articles === false) {
                                 <small>
                                     <?php
                                     // Получаем название категории
-                                    $category_query = "SELECT `title` FROM `articles_categories` WHERE `id` = " . (int)$article['categories_id'];
+                                    $category_query = "SELECT title FROM articles_categories WHERE id = " . (int)$article['categories_id'];
                                     $category_result = mysqli_query($connection, $category_query);
                                     $category = mysqli_fetch_assoc($category_result);
                                     echo $category ? htmlspecialchars($category['title']) : "No Category";
