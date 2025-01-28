@@ -9,7 +9,7 @@ require __DIR__ . "/db.php";
             <div class="header__top__logo"></div>
             <nav class="header__top__menu">
                 <ul>
-                    <li><a href="/">home</a></li>
+                    <li><a href="/">Home</a></li>
                     <li><a href="pages/About_me.php">About me</a></li>
                 </ul>
             </nav>
@@ -21,7 +21,7 @@ require __DIR__ . "/db.php";
 
         // cheking succesfully connection
         if ($categories === false) {
-            echo "Ошибка получения категорий: " . mysqli_error($connection);
+            echo "error of getting connection: " . mysqli_error($connection);
             exit();
         }
     ?>

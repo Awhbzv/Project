@@ -97,27 +97,7 @@ include "../include/db.php";
       </div>
     </div>
 
-    <footer id="footer">
-      <div class="container">
-        <div class="footer__logo">
-        </div>
-        <nav class="footer__menu">
-          <ul>
-            <li><a href="#">About us</a></li>
-            <li><a href="#">Copyright</a></li>
-          </ul>
-        </nav>
-      </div>
-          <h1>Blog IT_Minimalism</h1>
-        </div>
-        <nav class="footer__menu">
-          <ul> 
-          </ul>
-        </nav>
-      </div>
-    </footer>
-
-  </div>
+    <?php include __DIR__ . '/../include/footer.php';?>
 
 </body>
 </html>
