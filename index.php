@@ -10,6 +10,7 @@ include __DIR__ . '/include/header.php';
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
   <title>Blog IT_Minimalism!</title>
   <!-- Bootstrap Grid -->
   <link rel="stylesheet" type="text/css" href="media/assets/bootstrap-grid-only/css/grid12.css">
@@ -39,47 +40,50 @@ include __DIR__ . '/include/header.php';
               <div class="block__content">
                 <div class="articles articles__horizontal">
        
-        <?php
-        // getting data from articles
-        $articles = mysqli_query($connection, "SELECT * FROM `articles`". "ORDER BY" . 'id' . 'DESC LIMIT'  );
+                <?php
+             // getting data from articles
+                  $articles = mysqli_query($connection, "SELECT * FROM `articles`". "ORDER BY" . 'id' . 'DESC LIMIT'  );
+                  
+             // cheking succesfully connection
+                  if ($categories === false)
+                   {
+                  echo "Error of getting connection: " . mysqli_error($connection);
+                  exit();
+                   }
+                ?>
+                <?php
+             // getting data from articles
+                  $articles = mysqli_query($connection, "SELECT * FROM `articles`");
+                   
+             // checking successfully connection
+                  if ($articles === false) {
+                  echo "Error of getting connection: " . mysqli_error($connection);
+                  exit();
+                   }
+                ?>
 
-        // cheking succesfully connection
-        if ($categories === false) {
-            echo "Errorof getting connection: " . mysqli_error($connection);
-            exit();
-        }
-        ?>
-        <?php
-        // getting data from articles
-        $articles = mysqli_query($connection, "SELECT * FROM `articles`");
-
-        // checking successfully connection
-        if ($articles === false) {
-            echo "Error of getting connection: " . mysqli_error($connection);
-            exit();
-        }
-?>
-
-<?php 
-        while ($art = mysqli_fetch_assoc($articles)) {
-?>
-        <article class="article">
-    <div class="article__image" style="background-image: url(media/images/post-image.jpg);"></div>
-    <div class="article__info">
-        <a href="/article.php?id=<?php echo htmlspecialchars($art['id']); ?>"><?php echo htmlspecialchars($art['title']); ?></a>
-        <div class="article__info__meta">
-            <?php 
-            $art_cat = false;
-            foreach ($categories as $cat) {
-                if ($cat['id'] == $art['categories_id']) {
+                <?php 
+                  while ($art = mysqli_fetch_assoc($articles)) {
+                ?>
+                    <article class="article">
+                    <divЮ class="article__image" style="background-image: url(/media/images/<?php echo htmlspecialchars($articles['image']); ?>');"></div>
+              <div class="article__info">
+            <a href="/article.php?id=<?php echo htmlspecialchars($art['id']); ?>"><?php echo htmlspecialchars($art['title']); ?></a>
+          <div class="article__info__meta">
+                <?php 
+                  $art_cat = false;
+                  foreach ($categories as $cat) {
+                  if ($cat['id'] == $art['categories_id']) 
+                  {
                     $art_cat = $cat;
                     break;
-                }  
-            }
+                  }  
+                  }
 
             // Check if category exists
-            if ($art_cat !== false) {
-            ?>
+            if ($art_cat !== false) 
+            {
+                ?>
                 <small>Category: <a href="/categorie.php?id=<?php echo htmlspecialchars($art_cat['id']); ?>"><?php echo htmlspecialchars($art_cat['title']); ?></a></small>
             <?php
             } else {
@@ -93,225 +97,127 @@ include __DIR__ . '/include/header.php';
 </article>
 <?php          
 }
+?> 
+
+
+
+<?php /*                           Security newest Block                                          */?>
+          <?php
+
+// Condition for selecting articles
+// For example, we take only articles from a category with id = 1 or with a specific tag
+$condition = "`categories_id` = 5"; // You can specify any SQL conditions here
+
+
+// Get the latest articles that match a condition
+$newest_articles_query = "SELECT * FROM `articles` WHERE $condition ORDER BY `id` DESC LIMIT 5";
+$newest_articles = mysqli_query($connection, $newest_articles_query);
+
+// Checking the success of the request
+
+if ($newest_articles === false) {
+    echo "Error: " . mysqli_error($connection);
+    exit();
+}
 ?>
-         
 
-                  <article class="article">
-                    <div class="article__image"></div>
-                    <div class="article__info">
-                      <a href="#">Title name #2</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Lifestyle</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
+<!-- HTML for displaying articles -->
+<div class="newest-blog">
+    <h2>Newest in Blog</h2>
+    <div class="articles-list">
+        <?php while ($article = mysqli_fetch_assoc($newest_articles)) { ?>
+            <article class="article">
+                <!-- Обработка пути к изображению -->
+                <?php 
+                $imagePath = isset($article['image']) && !empty($article['image']) 
+                ? '/media/images/' . htmlspecialchars($article['image']) 
+                : '/media/images/default.jpg';
+                ?>
+                <div class="article__image" style="background-image: url('/media/images/<?php echo htmlspecialchars($article['image']); ?>');"></div>
+                <div class="article__info">
+                    <a href="/article.php?id=<?php echo htmlspecialchars($article['id']); ?>">
+                        <?php echo htmlspecialchars($article['title']); ?>
+                    </a>
+                    <div class="article__info__meta">
+                        <small>
+                            <?php
+                            // Получаем название категории
+                            $category_query = "SELECT `title` FROM `articles_categories` WHERE `id` = " . (int)$article['categories_id'];
+                            $category_result = mysqli_query($connection, $category_query);
+                            $category = mysqli_fetch_assoc($category_result);
+                            echo $category ? htmlspecialchars($category['title']) : "No Category";
+                            ?>
+                        </small>
                     </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image"></div>
-                    <div class="article__info">
-                      <a href="#">Title name #3</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Programming</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
+                    <div class="article__info__preview">
+                        <?php echo mb_substr(htmlspecialchars($article['text']), 0, 100, 'utf-8') . '...'; ?>
                     </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image"></div>
-                    <div class="article__info">
-                      <a href="#">Title name #4</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Lifestyle</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
                 </div>
-              </div>
-            </div>
+            </article>
+        <?php } ?>
+    </div>
+</div>
 
-            <div class="block">
-              <a href="#">All records</a>
-              <h3>Security [Newest]</h3>
-              <div class="block__content">
-                <div class="articles articles__horizontal">
-
-                  <article class="article">
-                    <div class="article__image"></div>
-                    <div class="article__info">
-                      <a href="#">Title name</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Programming</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image"></div>
-                    <div class="article__info">
-                      <a href="#">Title name #2</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Lifestyle</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image"></div>
-                    <div class="article__info">
-                      <a href="#">Title name #3</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Programming</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image"></div>
-                    <div class="article__info">
-                      <a href="#">Title name #4</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Lifestyle</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                </div>
-              </div>
-            </div>
-
-            <div class="block">
-              <a href="#">All records</a>
-              <h3>Programming [Newest]</h3>
-              <div class="block__content">
-                <div class="articles articles__horizontal">
-
-                  <article class="article">
-                    <div class="article__image"></div>
-                    <div class="article__info">
-                      <a href="#">Title name</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Programming</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image"></div>
-                    <div class="article__info">
-                      <a href="#">Title name #2</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Lifestyle</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image"></div>
-                    <div class="article__info">
-                      <a href="#">Title name #3</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Programming</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image"></div>
-                    <div class="article__info">
-                      <a href="#">Title name #4</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Lifestyle</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
 
                 </div>
               </div>
             </div>
           </section>
           <section class="content__right col-md-4">
-            <div class="block">
-              <h3>Visitor`s Map</h3>
-              <div class="block__content">
-                <script type="text/javascript" id="mmvst_globe" src="https:mapmyvisitors.com/globe.js?d=6dFCn8xjM2NWAiB4pbpdZpl1BhHdLEj98RQUYRJ4MlQ"></script>
-              </div>
+    <div class="block">
+        <h3>Visitor's Map</h3>
+        <div class="block__content">
+            <script type="text/javascript" id="mmvst_globe" src="https:mapmyvisitors.com/globe.js?d=6dFCn8xjM2NWAiB4pbpdZpl1BhHdLEj98RQUYRJ4MlQ"></script>
+        </div>
+    </div>
+
+    <!-- Sidebar: Top 5 Most Read Articles -->
+    <div class="block">
+        <h3>Top 5 Most Read Articles</h3>
+        <div class="block__content">
+            <div class="articles articles__vertical">
+                <?php
+                // Запрос на выборку 5 самых читаемых статей, сортировка по количеству просмотров
+                $top_articles_query = "SELECT * FROM `articles` ORDER BY `views` DESC LIMIT 5";
+                $top_articles = mysqli_query($connection, $top_articles_query);
+
+                // Проверка успешности запроса
+                if ($top_articles === false) {
+                    echo "Error: " . mysqli_error($connection);
+                    exit();
+                }
+
+                // Вывод 5 самых популярных статей
+                while ($article = mysqli_fetch_assoc($top_articles)) {
+                ?>
+                    <article class="article">
+                        <div class="article__image" style="background-image: url('/media/images/<?php echo htmlspecialchars($article['image']); ?>');"></div>
+                        <div class="article__info">
+                            <a href="/article.php?id=<?php echo htmlspecialchars($article['id']); ?>">
+                                <?php echo htmlspecialchars($article['title']); ?>
+                            </a>
+                            <div class="article__info__meta">
+                                <small>
+                                    <?php
+                                    // Получаем название категории
+                                    $category_query = "SELECT `title` FROM `articles_categories` WHERE `id` = " . (int)$article['categories_id'];
+                                    $category_result = mysqli_query($connection, $category_query);
+                                    $category = mysqli_fetch_assoc($category_result);
+                                    echo $category ? htmlspecialchars($category['title']) : "No Category";
+                                    ?>
+                                </small>
+                            </div>
+                            <div class="article__info__preview">
+                                <?php echo mb_substr(htmlspecialchars($article['text']), 0, 100, 'utf-8') . '...'; ?>
+                            </div>
+                        </div>
+                    </article>
+                <?php
+                }
+                ?>
             </div>
-
-            <div class="block">
-              <h3>Top read title`s</h3>
-              <div class="block__content">
-                <div class="articles articles__vertical">
-
-                  <article class="article">
-                    <div class="article__image" style="background-image: url(media/images/post-image.jpg);"></div>
-                    <div class="article__info">
-                      <a href="#">Title name</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Programming</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image" style="background-image: url(media/images/post-image.jpg);"></div>
-                    <div class="article__info">
-                      <a href="#">Title name</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Programming</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image" style="background-image: url(media/images/post-image.jpg);"></div>
-                    <div class="article__info">
-                      <a href="#">Title name</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Programming</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image" style="background-image: url(media/images/post-image.jpg);"></div>
-                    <div class="article__info">
-                      <a href="#">Title name</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Programming</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image" style="background-image: url(media/images/post-image.jpg);"></div>
-                    <div class="article__info">
-                      <a href="#">Title name</a>
-                      <div class="article__info__meta">
-                        <small>Category: <a href="#">Programming</a></small>
-                      </div>
-                      <div class="article__info__preview">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ...</div>
-                    </div>
-                  </article>
-
-                </div>
-              </div>
-            </div>
+        </div>
+    </div>
 
             <div class="block">
               <h3>Commentary</h3>
@@ -319,7 +225,18 @@ include __DIR__ . '/include/header.php';
                 <div class="articles articles__vertical">
 
                   <article class="article">
-                    <div class="article__image" style="background-image: url(media/images/post-image.jpg);"></div>
+                  <div class="article__image" style="background-image: url('/media/images/<?php echo htmlspecialchars($article['image']); ?>');"></div>
+                  <div class="article__info">
+                      <a href="#">Jonny Flame</a>
+                      <div class="article__info__meta">
+                        <small><a href="#">Title name #1</a></small>
+                      </div>
+                      <div class="article__info__preview">Bla bla bla bla bla bla and then i think some more bla bla bla ...</div>
+                    </div>
+                  </article>
+
+                  <article class="article">
+                  <div class="article__image" style="background-image: url('/media/images/<?php echo htmlspecialchars($article['image']); ?>');"></div>
                     <div class="article__info">
                       <a href="#">Jonny Flame</a>
                       <div class="article__info__meta">
@@ -330,7 +247,7 @@ include __DIR__ . '/include/header.php';
                   </article>
 
                   <article class="article">
-                    <div class="article__image" style="background-image: url(media/images/post-image.jpg);"></div>
+                  <div class="article__image" style="background-image: url('/media/images/<?php echo htmlspecialchars($article['image']); ?>');"></div>
                     <div class="article__info">
                       <a href="#">Jonny Flame</a>
                       <div class="article__info__meta">
@@ -341,7 +258,7 @@ include __DIR__ . '/include/header.php';
                   </article>
 
                   <article class="article">
-                    <div class="article__image" style="background-image: url(media/images/post-image.jpg);"></div>
+                  <div class="article__image" style="background-image: url('/media/images/<?php echo htmlspecialchars($article['image']); ?>');"></div>
                     <div class="article__info">
                       <a href="#">Jonny Flame</a>
                       <div class="article__info__meta">
@@ -352,18 +269,7 @@ include __DIR__ . '/include/header.php';
                   </article>
 
                   <article class="article">
-                    <div class="article__image" style="background-image: url(media/images/post-image.jpg);"></div>
-                    <div class="article__info">
-                      <a href="#">Jonny Flame</a>
-                      <div class="article__info__meta">
-                        <small><a href="#">Title name #1</a></small>
-                      </div>
-                      <div class="article__info__preview">Bla bla bla bla bla bla and then i think some more bla bla bla ...</div>
-                    </div>
-                  </article>
-
-                  <article class="article">
-                    <div class="article__image" style="background-image: url(media/images/post-image.jpg);"></div>
+                  <div class="article__image" style="background-image: url('/media/images/<?php echo htmlspecialchars($article['image']); ?>');"></div>
                     <div class="article__info">
                       <a href="#">Jonny Flame</a>
                       <div class="article__info__meta">
@@ -380,21 +286,8 @@ include __DIR__ . '/include/header.php';
         </div>
       </div>
     </div>
-
-    <footer id="footer">
-      <div class="container">
-        <div class="footer__logo">
-          <h1><?php echo $config['title']; ?></h1>
-        </div>
-        <nav class="footer__menu">
-          <ul>
-            <li><a href="#">Header</a></li>
-            <li><a href="#">About us</a></li>
-            <li><a href="#">Copyright</a></li>
-          </ul>
-        </nav>
-      </div>
-    </footer>
+    <!-- get footer data from footer.php by using include  -->
+    <?php include __DIR__ . '/include/footer.php';?>
 
   </div>
 
