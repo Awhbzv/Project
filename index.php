@@ -36,11 +36,14 @@ include __DIR__ . '/include/header.php';
           <section class="content__left col-md-8">
             <div class="block">
               <a href="/categories.php">All records</a>
-              <h3>Newest in blog</h3>
+
+              <h3>Most intresting titles</h3>
               <div class="block__content">
                 <div class="articles articles__horizontal">
-       
-                <?php
+                  <?php 
+                  $articles = mysqli_query($connection, "SELECT * FROM articles". "ORDER BY" . 'id' . 'DESC LIMIT'  );
+                  ?>                
+                  <?php
              // getting data from articles
                   $articles = mysqli_query($connection, "SELECT * FROM articles". "ORDER BY" . 'id' . 'DESC LIMIT'  );
                   
@@ -50,8 +53,8 @@ include __DIR__ . '/include/header.php';
                   echo "Error of getting connection: " . mysqli_error($connection);
                   exit();
                    }
-                ?>
-                <?php
+                  ?>
+                  <?php
              // getting data from articles
                   $articles = mysqli_query($connection, "SELECT * FROM articles");
                    
@@ -116,7 +119,7 @@ if ($newest_articles === false) {
     <div class="articles-list">
         <?php while ($article = mysqli_fetch_assoc($newest_articles)) { ?>
             <article class="article">
-                <!-- Обработка пути к изображению -->
+                <!-- Processing the image path -->
                 <?php 
                 $imagePath = isset($article['image']) && !empty($article['image']) 
                 ? '/media/images/' . htmlspecialchars($article['image']) 
@@ -130,7 +133,7 @@ if ($newest_articles === false) {
                     <div class="article__info__meta">
                         <small>
                             <?php
-                            // Получаем название категории
+                            // Getting category name
                             $category_query = "SELECT title FROM articles_categories WHERE id = " . (int)$article['categories_id'];
                             $category_result = mysqli_query($connection, $category_query);
                             $category = mysqli_fetch_assoc($category_result);
@@ -164,17 +167,17 @@ if ($newest_articles === false) {
         <div class="block__content">
             <div class="articles articles__vertical">
                 <?php
-                // Запрос на выборку 5 самых читаемых статей, сортировка по количеству просмотров
+                // Request to select the 5 most read articles, sorted by number of views
                 $top_articles_query = "SELECT * FROM articles ORDER BY views DESC LIMIT 5";
                 $top_articles = mysqli_query($connection, $top_articles_query);
 
-                // Проверка успешности запроса
+                // Checking the success of the request
                 if ($top_articles === false) {
                     echo "Error: " . mysqli_error($connection);
                     exit();
                 }
 
-                // Вывод 5 самых популярных статей
+                // Conclusion of the 5 most popular articles
                 while ($article = mysqli_fetch_assoc($top_articles)) {
                 ?>
                     <article class="article">
@@ -186,7 +189,7 @@ if ($newest_articles === false) {
                             <div class="article__info__meta">
                                 <small>
                                     <?php
-                                    // Получаем название категории
+                                    // Getting category name
                                     $category_query = "SELECT title FROM articles_categories WHERE id = " . (int)$article['categories_id'];
                                     $category_result = mysqli_query($connection, $category_query);
                                     $category = mysqli_fetch_assoc($category_result);
@@ -202,6 +205,7 @@ if ($newest_articles === false) {
                 <?php
                 }
                 ?>
+                 
             </div>
         </div>
     </div>
